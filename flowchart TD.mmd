@@ -1,0 +1,42 @@
+flowchart TD
+    A[Raw MC-MED Dataset<br>Stanford Health Care<br>Jan 2020 – Dec 2022] --> B[Initial Inclusion Criteria]
+
+    B --> B1[Adult patients ≥18 years]
+    B --> B2[Complete outcome variables]
+    B --> B3[≥1 vital sign within 90 min of arrival]
+    B --> B4[Valid ESI triage level 1–5]
+
+    B1 & B2 & B3 & B4 --> C[Exclusion Criteria]
+
+    C --> C1[Missing outcome labels <0.3%]
+    C --> C2[Error / duplicate records]
+    C --> C3[Left without being seen / against medical advice]
+
+    C1 & C2 & C3 --> D[Eligible Cohort<br>n = 118,385 visits]
+
+    D --> E[Feature Engineering<br>from admission-available data only<br>within 90 min of arrival]
+
+    E --> E1[Demographics<br>age, sex, race, insurance]
+    E --> E2[Triage vitals + acuity<br>Temp, HR, RR, SpO2, BP, ESI level]
+    E --> E3[Arrival context<br>hour, weekend, EMS arrival]
+    E --> E4[Chief complaints<br>keyword matching]
+    E --> E5[Comorbidity burden<br>CCI, disease condition count]
+    E --> E6[Home medications<br>med count, class count, polypharmacy]
+
+    E1 & E2 & E3 & E4 & E5 & E6 --> F[Complete Feature Set<br>29 features]
+
+    F --> G[Missing Data Handling]
+
+    G --> G1[Continuous (<5% missing)<br>median imputation from training set]
+    G --> G2[Vitals (<3% missing)<br>MICE with 5 iterations]
+    G --> G3[Categorical (<1% missing)<br>mode imputation from training set]
+
+    G1 & G2 & G3 --> H[Preprocessed Dataset<br>no leakage from validation/test]
+
+    H --> I[Chronological Split<br>by visit timestamp]
+
+    I --> J1[Training set<br>78% (n=92,341)]
+    I --> J2[Validation set<br>11% (n=13,020)]
+    I --> J3[Test set<br>11% (n=13,024)]
+
+    J3 --> K[Final evaluation<br>for 3 binary tasks:<br>ED-LOS≥8h / Admission / Hosp-LOS>7d]
